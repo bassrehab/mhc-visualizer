@@ -26,15 +26,17 @@ export function generateResidualMatrix(
     return eye(n);
   }
 
-  // Generate random matrix for HC and mHC
-  const M = randomMatrix(n, rng);
+  // Generate random matrix
+  const R = randomMatrix(n, rng);
 
   if (method === 'hc') {
-    return M;
+    // HC: Start near identity with small perturbation
+    const I = eye(n);
+    return I.map((row, i) => row.map((val, j) => val + 0.1 * R[i][j]));
   }
 
   if (method === 'mhc') {
-    return sinkhornKnopp(M, sinkhornIters);
+    return sinkhornKnopp(R, sinkhornIters);
   }
 
   throw new Error(`Unknown method: ${method}`);
