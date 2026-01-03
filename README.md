@@ -1,5 +1,6 @@
 # Manifold Dial: Visualizing mHC Stability
 
+[![Live Demo](https://img.shields.io/badge/demo-live-blue)](https://bassrehab.github.io/mhc-visualizer/)
 [![GitHub stars](https://img.shields.io/github/stars/bassrehab/mhc-visualizer?style=social)](https://github.com/bassrehab/mhc-visualizer)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bassrehab/mhc-visualizer/blob/main/notebook/mhc_exploration.ipynb)
 [![Python Tests](https://img.shields.io/badge/tests-32%20passed-brightgreen)](python/tests)
