@@ -40,7 +40,7 @@ def generate_residual_matrix(
         n: Size of square matrix (number of streams)
         method: One of:
             - 'baseline': Identity matrix (no mixing)
-            - 'hc': Random matrix with N(0, 1/sqrt(n)) entries
+            - 'hc': Random matrix with N(0, 1) entries
             - 'mhc': Random matrix projected to doubly stochastic via Sinkhorn
         sinkhorn_iters: Number of Sinkhorn iterations for mHC method
         rng: Random number generator for reproducibility
@@ -61,8 +61,6 @@ def generate_residual_matrix(
         return np.eye(n)
 
     # Generate random matrix for HC and mHC
-    # Use scale that produces visible explosion for HC
-    # (without scaling, N(0,1) entries lead to gains > 1 on average)
     M = rng.standard_normal((n, n))
 
     if method == 'hc':
