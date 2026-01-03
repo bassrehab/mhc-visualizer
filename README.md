@@ -151,10 +151,8 @@ mhc-visualizer/
 │   │   ├── components/      # React components
 │   │   └── lib/             # TypeScript core library
 │   └── dist-embed/          # Embeddable widget
-├── notebook/
-│   └── mhc_exploration.ipynb  # Colab notebook
-└── blog/
-    └── post.md              # Blog post draft
+└── notebook/
+    └── mhc_exploration.ipynb  # Colab notebook
 ```
 
 ## Requirements
@@ -187,4 +185,4 @@ Based on research by DeepSeek-AI. This visualization was built to make their ins
 
 ---
 
-**Built by [Subhadip Mitra](https://github.com/bassrehab)** | [Blog Post](blog/post.md) | [Colab Notebook](https://colab.research.google.com/github/bassrehab/mhc-visualizer/blob/main/notebook/mhc_exploration.ipynb)
+**Built by [Subhadip Mitra](https://github.com/bassrehab)** | [Blog Post](https://subhadipmitra.com/blog/2026/deepseek-mhc-manifold-constrained-hyper-connections/) | [Colab Notebook](https://colab.research.google.com/github/bassrehab/mhc-visualizer/blob/main/notebook/mhc_exploration.ipynb)
