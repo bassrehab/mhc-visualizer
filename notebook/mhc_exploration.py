@@ -282,8 +282,8 @@ def _():
     ## The Manifold Dial: Varying Sinkhorn Iterations
 
     Watch how the matrix transforms as we increase iterations:
-    - **k=0**: Just exp(M), unconstrained
-    - **k=2-5**: Partial projection, some structure
+    - **k=0**: Raw random matrix (same as HC) - unconstrained
+    - **k=1-5**: Partial projection, rapid stabilization
     - **k=10-20**: Fully doubly stochastic
     """)
     return
@@ -299,7 +299,7 @@ def _(seed_input):
     dial_data = []
     for k in iters_to_show:
         if k == 0:
-            mat = np.exp(dial_base - dial_base.max())
+            mat = dial_base  # Raw random matrix (same as HC)
         else:
             mat = sinkhorn_knopp(dial_base, iterations=k)
 
