@@ -67,6 +67,10 @@ def generate_residual_matrix(
         return M
 
     if method == 'mhc':
+        # At k=0, return raw random matrix (same as HC) to show explosive behavior
+        # At k>0, apply Sinkhorn projection to show transition to stability
+        if sinkhorn_iters == 0:
+            return M
         return sinkhorn_knopp(M, iterations=sinkhorn_iters)
 
     raise ValueError(f"Unknown method: {method}. Expected 'baseline', 'hc', or 'mhc'.")

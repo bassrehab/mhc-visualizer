@@ -72,7 +72,7 @@ export function GainPlot({
           />
           <YAxis
             scale="log"
-            domain={['auto', 'auto']}
+            domain={[0.5, 'auto']}
             allowDataOverflow
             tickFormatter={(value) =>
               value >= 1000 ? value.toExponential(0) : value.toFixed(1)
@@ -94,6 +94,14 @@ export function GainPlot({
           />
           <Legend
             formatter={(value: string) => LABELS[value as Method]}
+          />
+
+          {/* Stability threshold at y=1 */}
+          <ReferenceLine
+            y={1}
+            stroke="#9ca3af"
+            strokeDasharray="5 5"
+            label={{ value: 'Stable (gain=1)', position: 'right', fill: '#6b7280', fontSize: 10 }}
           />
 
           {selectedLayer !== undefined && (

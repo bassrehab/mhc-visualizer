@@ -2,13 +2,13 @@
  * Interactive controls for the simulation.
  */
 
-import { Play, RotateCcw } from 'lucide-react';
+import { Shuffle, RotateCcw } from 'lucide-react';
 import type { SimulationConfig } from '../lib/types';
 
 interface ControlsProps {
   config: SimulationConfig;
   onChange: (config: SimulationConfig) => void;
-  onRun: () => void;
+  onRandomize: () => void;
   isComputing: boolean;
 }
 
@@ -22,7 +22,7 @@ const PRESETS = [
 export function Controls({
   config,
   onChange,
-  onRun,
+  onRandomize,
   isComputing,
 }: ControlsProps) {
   const handlePreset = (preset: (typeof PRESETS)[0]) => {
@@ -137,24 +137,15 @@ export function Controls({
         />
       </div>
 
-      {/* Run Button */}
+      {/* Randomize Button */}
       <div className="flex gap-2">
         <button
-          onClick={onRun}
+          onClick={onRandomize}
           disabled={isComputing}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400 transition-colors"
         >
-          {isComputing ? (
-            <>
-              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-              Computing...
-            </>
-          ) : (
-            <>
-              <Play size={16} />
-              Run Simulation
-            </>
-          )}
+          <Shuffle size={16} />
+          Randomize Seed
         </button>
         <button
           onClick={() => handlePreset(PRESETS[0])}

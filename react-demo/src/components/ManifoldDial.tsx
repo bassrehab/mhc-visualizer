@@ -52,11 +52,17 @@ export function ManifoldDial() {
     }, 10);
   }, [config]);
 
+  // Randomize seed
+  const randomizeSeed = useCallback(() => {
+    const newSeed = Math.floor(Math.random() * 10000);
+    setConfig((c) => ({ ...c, seed: newSeed }));
+  }, []);
+
   // Debounced config change handler
   const handleConfigChange = useCallback((newConfig: SimulationConfig) => {
     setConfig(newConfig);
 
-    // Debounce the simulation run
+    // Debounce the URL update (not the simulation)
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
@@ -111,7 +117,7 @@ export function ManifoldDial() {
           break;
         case ' ':
           e.preventDefault();
-          runSimulation();
+          randomizeSeed();
           break;
         case 'r':
         case 'R':
@@ -127,7 +133,7 @@ export function ManifoldDial() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [runSimulation]);
+  }, [randomizeSeed]);
 
   // Copy URL handler
   const handleCopyUrl = useCallback(async () => {
@@ -224,7 +230,7 @@ export function ManifoldDial() {
           <div className="grid grid-cols-2 gap-2">
             <div><kbd className="bg-gray-700 px-2 py-0.5 rounded">←/→</kbd> Sinkhorn ±1</div>
             <div><kbd className="bg-gray-700 px-2 py-0.5 rounded">↑/↓</kbd> Sinkhorn ±5</div>
-            <div><kbd className="bg-gray-700 px-2 py-0.5 rounded">Space</kbd> Run simulation</div>
+            <div><kbd className="bg-gray-700 px-2 py-0.5 rounded">Space</kbd> Randomize seed</div>
             <div><kbd className="bg-gray-700 px-2 py-0.5 rounded">R</kbd> Reset to defaults</div>
             <div><kbd className="bg-gray-700 px-2 py-0.5 rounded">?</kbd> Toggle this help</div>
           </div>
@@ -288,7 +294,7 @@ export function ManifoldDial() {
           <Controls
             config={config}
             onChange={handleConfigChange}
-            onRun={runSimulation}
+            onRandomize={randomizeSeed}
             isComputing={isComputing}
           />
 
