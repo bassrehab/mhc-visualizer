@@ -54,6 +54,15 @@ python generate_plots.py  # Generate figures
 
 Run the full exploration in your browser—no setup required.
 
+### Marimo Notebook
+
+```bash
+pip install marimo
+marimo run notebook/mhc_exploration.py
+```
+
+A reactive Python notebook with real-time sliders and instant feedback-no cell re-execution needed.
+
 ## Key Visualizations
 
 ### The Manifold Dial
@@ -153,7 +162,8 @@ mhc-visualizer/
 │   │   └── lib/             # TypeScript core library
 │   └── dist-embed/          # Embeddable widget
 └── notebook/
-    └── mhc_exploration.ipynb  # Colab notebook
+    ├── mhc_exploration.ipynb  # Colab notebook
+    └── mhc_exploration.py     # Marimo reactive notebook
 ```
 
 ## Requirements
