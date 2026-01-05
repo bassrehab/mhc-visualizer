@@ -3,6 +3,7 @@ _dev/
 
 # Python
 __pycache__/
+__marimo__
 *.py[cod]
 *$py.class
 *.so
