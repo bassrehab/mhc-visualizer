@@ -5,10 +5,30 @@ app = marimo.App(width="medium", app_title="Mhc Exploration")
 
 with app.setup(hide_code=True):
     import sys
+    import subprocess
+    import tempfile
     from pathlib import Path
 
-    # Add python/ to path relative to this notebook file
-    sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
+    # Try local path first, clone repo if not available
+    _local_python = Path(__file__).parent.parent / "python"
+    if _local_python.exists():
+        sys.path.insert(0, str(_local_python))
+    else:
+        # Clone repo to temp directory for standalone usage
+        _tmp_dir = Path(tempfile.gettempdir()) / "mhc-visualizer"
+        if not (_tmp_dir / "python").exists():
+            subprocess.run(
+                [
+                    "git",
+                    "clone",
+                    "--depth=1",
+                    "https://github.com/bassrehab/mhc-visualizer.git",
+                    str(_tmp_dir),
+                ],
+                check=True,
+                capture_output=True,
+            )
+        sys.path.insert(0, str(_tmp_dir / "python"))
 
     import numpy as np
     import altair as alt
