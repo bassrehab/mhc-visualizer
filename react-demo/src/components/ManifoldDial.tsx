@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Link, Check, Keyboard, Info } from 'lucide-react';
+import { Link, Check, Keyboard, Info, Github } from 'lucide-react';
 import { Controls } from './Controls';
 import { InsightBanner } from './InsightBanner';
 import { StickySinkhornControl } from './StickySinkhornControl';
@@ -328,7 +328,17 @@ export function ManifoldDial() {
         </p>
 
         {/* Action buttons */}
-        <div className="flex justify-center gap-2 mt-3">
+        <div className="flex justify-center gap-2 mt-3 flex-wrap">
+          <a
+            href="https://github.com/bassrehab/mhc-visualizer"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-800 text-white hover:bg-gray-900 rounded-md transition-colors"
+            title="View source on GitHub"
+          >
+            <Github size={14} />
+            <span>GitHub</span>
+          </a>
           <button
             onClick={handleCopyUrl}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
