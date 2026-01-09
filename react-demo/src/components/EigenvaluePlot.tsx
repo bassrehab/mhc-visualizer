@@ -4,6 +4,7 @@
  * as matrices are multiplied together, showing convergence to uniformity.
  */
 
+import { useState } from 'react';
 import {
   LineChart,
   Line,
@@ -33,13 +34,24 @@ export function EigenvaluePlot({
   selectedLayer,
   onLayerSelect,
 }: EigenvaluePlotProps) {
+  const [showTheoretical, setShowTheoretical] = useState(true);
+
+  // Get initial mHC |λ₂| for theoretical decay prediction
+  const initialLambda2 = data.mhc.length > 0 ? data.mhc[0].second : 0.9;
+
   // Transform data for Recharts - show second-largest eigenvalue magnitude
-  const chartData = data.baseline.map((_, index) => ({
-    layer: index,
-    baseline: data.baseline[index].second,
-    hc: data.hc[index].second,
-    mhc: data.mhc[index].second,
-  }));
+  const chartData = data.baseline.map((_, index) => {
+    // Theoretical: |λ₂(0)|^L - predicted decay if eigenvalue stayed constant
+    const theoretical = Math.pow(initialLambda2, index);
+
+    return {
+      layer: index,
+      baseline: data.baseline[index].second,
+      hc: data.hc[index].second,
+      mhc: data.mhc[index].second,
+      theoretical: theoretical > 1e-16 ? theoretical : 1e-16, // Clamp for log scale
+    };
+  });
 
   // Custom tooltip formatter
   const formatValue = (value: number) => {
@@ -51,12 +63,25 @@ export function EigenvaluePlot({
 
   return (
     <div className="w-full bg-white rounded-lg shadow-sm p-4">
-      <h3 className="text-lg font-semibold text-gray-800 mb-2">
-        Second-Largest Eigenvalue |λ₂| vs Layer Depth
-      </h3>
-      <p className="text-sm text-gray-600 mb-4">
-        Shows convergence rate to uniform matrix. Lower |λ₂| = faster averaging.
-      </p>
+      <div className="flex items-start justify-between mb-2">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-800">
+            Second-Largest Eigenvalue |λ₂| vs Layer Depth
+          </h3>
+          <p className="text-sm text-gray-600">
+            Shows convergence rate to uniform matrix. Lower |λ₂| = faster averaging.
+          </p>
+        </div>
+        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer whitespace-nowrap">
+          <input
+            type="checkbox"
+            checked={showTheoretical}
+            onChange={(e) => setShowTheoretical(e.target.checked)}
+            className="rounded"
+          />
+          <span>Show |λ₂|<sup>L</sup></span>
+        </label>
+      </div>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart
           data={chartData}
@@ -92,6 +117,9 @@ export function EigenvaluePlot({
           <Tooltip
             formatter={(value, name) => {
               if (typeof value === 'number') {
+                if (name === 'theoretical') {
+                  return [formatValue(value), `Predicted (|λ₂|^L)`];
+                }
                 return [formatValue(value), LABELS[name as Method]];
               }
               return [String(value), name];
@@ -154,6 +182,18 @@ export function EigenvaluePlot({
             dot={false}
             name="mhc"
           />
+          {showTheoretical && (
+            <Line
+              type="monotone"
+              dataKey="theoretical"
+              stroke="#9ca3af"
+              strokeWidth={1.5}
+              strokeDasharray="5 5"
+              dot={false}
+              name="theoretical"
+              legendType="none"
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
     </div>

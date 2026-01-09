@@ -44,6 +44,44 @@ input[type="range"]::-webkit-slider-thumb:hover {
   background: #2563eb;
 }
 
+/* Mobile-friendly slider - larger touch targets */
+@media (max-width: 640px) {
+  input[type="range"] {
+    height: 10px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    width: 28px;
+    height: 28px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  /* Smaller padding on mobile */
+  .max-w-6xl {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Ensure charts don't overflow */
+  .recharts-responsive-container {
+    min-height: 200px !important;
+  }
+}
+
+/* Reduce chart heights on mobile */
+@media (max-width: 768px) {
+  .recharts-wrapper {
+    max-height: 220px;
+  }
+}
+
 /* Print-friendly styles */
 @media print {
   body {

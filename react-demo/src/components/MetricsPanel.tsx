@@ -1,8 +1,13 @@
 /**
  * Display computed metrics in a readable format.
+ * Collapsible panel showing summary or full metrics.
  */
 
+import { useState, useEffect } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { COLORS, LABELS, type ComparisonResult, type Method } from '../lib/types';
+
+const STORAGE_KEY = 'mhc-metrics-expanded';
 
 interface MetricsPanelProps {
   results: ComparisonResult | null;
@@ -24,6 +29,56 @@ function StabilityIndicator({ gain }: { gain: number }) {
     return <span className="text-yellow-600">⚠ Warning</span>;
   }
   return <span className="text-red-600">⚠ Unstable</span>;
+}
+
+// Spectral gap indicator - larger = faster convergence to uniform
+function SpectralGapIndicator({ gap }: { gap: number }) {
+  let color: string;
+  let label: string;
+
+  if (gap > 0.3) {
+    color = 'text-green-600';
+    label = 'Fast';
+  } else if (gap > 0.1) {
+    color = 'text-yellow-600';
+    label = 'Moderate';
+  } else if (gap > 0) {
+    color = 'text-red-600';
+    label = 'Slow';
+  } else {
+    color = 'text-gray-400';
+    label = 'None';
+  }
+
+  return (
+    <span className={`${color} text-xs ml-1`}>({label})</span>
+  );
+}
+
+// Compact summary card for collapsed view
+function SummaryCard({
+  method,
+  forwardGain,
+}: {
+  method: Method;
+  forwardGain: number;
+}) {
+  return (
+    <div
+      className="bg-white rounded-lg shadow-sm p-3 flex items-center justify-between"
+      style={{ borderTop: `3px solid ${COLORS[method]}` }}
+    >
+      <span className="font-medium text-sm" style={{ color: COLORS[method] }}>
+        {LABELS[method]}
+      </span>
+      <div className="flex items-center gap-3">
+        <span className="font-mono text-sm">
+          {forwardGain >= 1000 ? forwardGain.toExponential(1) : forwardGain.toFixed(2)}
+        </span>
+        <StabilityIndicator gain={forwardGain} />
+      </div>
+    </div>
+  );
 }
 
 function MethodCard({
@@ -77,6 +132,13 @@ function MethodCard({
           <span className="text-gray-600">|λ₂| (2nd):</span>
           <span className="font-mono">{formatNumber(metrics.secondEigenvalueMag)}</span>
         </div>
+        <div className="flex justify-between items-center">
+          <span className="text-gray-600">Spectral Gap:</span>
+          <span className="font-mono">
+            {formatNumber(1 - metrics.secondEigenvalueMag)}
+            <SpectralGapIndicator gap={1 - metrics.secondEigenvalueMag} />
+          </span>
+        </div>
         <div className="flex justify-between">
           <span className="text-gray-600">Dist to Uniform:</span>
           <span className="font-mono">{formatNumber(metrics.distanceFromUniform)}</span>
@@ -101,6 +163,18 @@ function MethodCard({
 }
 
 export function MetricsPanel({ results, selectedLayer }: MetricsPanelProps) {
+  // Initialize from localStorage, default to collapsed (false)
+  const [isExpanded, setIsExpanded] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored === 'true';
+  });
+
+  // Persist to localStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, String(isExpanded));
+  }, [isExpanded]);
+
   if (!results) {
     return (
       <div className="bg-gray-100 rounded-lg p-4 text-center text-gray-500">
@@ -121,30 +195,63 @@ export function MetricsPanel({ results, selectedLayer }: MetricsPanelProps) {
           Metrics at Layer {layer}
           {isFinal && <span className="text-gray-500 ml-2">(Final)</span>}
         </h3>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+        >
+          {isExpanded ? (
+            <>
+              <ChevronUp size={16} />
+              <span>Collapse</span>
+            </>
+          ) : (
+            <>
+              <ChevronDown size={16} />
+              <span>Expand</span>
+            </>
+          )}
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {methods.map((method) => {
-          const composite = results[method].composite[layer];
-          return (
-            <MethodCard
-              key={method}
-              method={method}
-              metrics={{
-                forwardGain: composite.forwardGain,
-                backwardGain: composite.backwardGain,
-                spectralNorm: composite.spectralNorm,
-                rowSumMaxDev: composite.rowSumMaxDev,
-                colSumMaxDev: composite.colSumMaxDev,
-                largestEigenvalueMag: composite.largestEigenvalueMag,
-                secondEigenvalueMag: composite.secondEigenvalueMag,
-                distanceFromUniform: composite.distanceFromUniform,
-              }}
-              isFinal={isFinal}
-            />
-          );
-        })}
-      </div>
+      {isExpanded ? (
+        // Full metrics view
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {methods.map((method) => {
+            const composite = results[method].composite[layer];
+            return (
+              <MethodCard
+                key={method}
+                method={method}
+                metrics={{
+                  forwardGain: composite.forwardGain,
+                  backwardGain: composite.backwardGain,
+                  spectralNorm: composite.spectralNorm,
+                  rowSumMaxDev: composite.rowSumMaxDev,
+                  colSumMaxDev: composite.colSumMaxDev,
+                  largestEigenvalueMag: composite.largestEigenvalueMag,
+                  secondEigenvalueMag: composite.secondEigenvalueMag,
+                  distanceFromUniform: composite.distanceFromUniform,
+                }}
+                isFinal={isFinal}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        // Collapsed summary view - Forward Gain + Stability only
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {methods.map((method) => {
+            const composite = results[method].composite[layer];
+            return (
+              <SummaryCard
+                key={method}
+                method={method}
+                forwardGain={composite.forwardGain}
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -3,6 +3,9 @@
  */
 
 import type { SimulationConfig } from './types';
+import type { ChartTab } from '../components/ChartTabs';
+
+const VALID_TABS: ChartTab[] = ['gain', 'eigenvalues', 'uniformity', 'all'];
 
 /**
  * Debounce a function call.
@@ -21,13 +24,16 @@ export function debounce<T extends (...args: unknown[]) => void>(
 /**
  * Encode config to URL search params.
  */
-export function configToUrl(config: SimulationConfig): string {
+export function configToUrl(config: SimulationConfig, tab?: ChartTab): string {
   const params = new URLSearchParams({
     depth: config.depth.toString(),
     n: config.n.toString(),
     sinkhornIters: config.sinkhornIters.toString(),
     seed: config.seed.toString(),
   });
+  if (tab && tab !== 'all') {
+    params.set('tab', tab);
+  }
   return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
 }
 
@@ -43,6 +49,18 @@ export function urlToConfig(defaultConfig: SimulationConfig): SimulationConfig {
     sinkhornIters: parseInt(params.get('sinkhornIters') || '') || defaultConfig.sinkhornIters,
     seed: parseInt(params.get('seed') || '') || defaultConfig.seed,
   };
+}
+
+/**
+ * Parse chart tab from URL.
+ */
+export function urlToTab(defaultTab: ChartTab = 'all'): ChartTab {
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get('tab');
+  if (tab && VALID_TABS.includes(tab as ChartTab)) {
+    return tab as ChartTab;
+  }
+  return defaultTab;
 }
 
 /**

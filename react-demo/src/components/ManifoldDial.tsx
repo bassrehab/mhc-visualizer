@@ -5,13 +5,17 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, Check, Keyboard, Info } from 'lucide-react';
 import { Controls } from './Controls';
+import { InsightBanner } from './InsightBanner';
+import { StickySinkhornControl } from './StickySinkhornControl';
+import { ChartTabs, type ChartTab } from './ChartTabs';
 import { GainPlot } from './GainPlot';
 import { EigenvaluePlot } from './EigenvaluePlot';
 import { UniformDistancePlot } from './UniformDistancePlot';
 import { MatrixHeatmap } from './MatrixHeatmap';
 import { MetricsPanel } from './MetricsPanel';
+import { TourOverlay, TourButton } from './TourOverlay';
 import { runComparison, getSampleMatrix } from '../lib/simulation';
-import { configToUrl, urlToConfig, copyToClipboard } from '../lib/utils';
+import { configToUrl, urlToConfig, urlToTab, copyToClipboard } from '../lib/utils';
 import type { SimulationConfig, ComparisonResult } from '../lib/types';
 
 const DEFAULT_CONFIG: SimulationConfig = {
@@ -20,6 +24,8 @@ const DEFAULT_CONFIG: SimulationConfig = {
   sinkhornIters: 20,
   seed: 42,
 };
+
+const TOUR_COMPLETED_KEY = 'mhc-tour-completed';
 
 export function ManifoldDial() {
   // Initialize from URL params if present
@@ -32,9 +38,16 @@ export function ManifoldDial() {
   const [copied, setCopied] = useState(false);
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showStickyControl, setShowStickyControl] = useState(false);
+  const [activeChartTab, setActiveChartTab] = useState<ChartTab>(() => urlToTab('all'));
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
+  const [isTourActive, setIsTourActive] = useState(false);
 
-  // Ref for debouncing
+  // Refs
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const controlsRef = useRef<HTMLDivElement>(null);
+  const playbackRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   // Run simulation
   const runSimulation = useCallback(() => {
@@ -70,15 +83,102 @@ export function ManifoldDial() {
     }
     debounceRef.current = setTimeout(() => {
       // Update URL without triggering navigation
-      const url = configToUrl(newConfig);
+      const url = configToUrl(newConfig, activeChartTab);
       window.history.replaceState({}, '', url);
     }, 500);
-  }, []);
+  }, [activeChartTab]);
+
+  // Handle tab change with URL update
+  const handleTabChange = useCallback((tab: ChartTab) => {
+    setActiveChartTab(tab);
+    const url = configToUrl(config, tab);
+    window.history.replaceState({}, '', url);
+  }, [config]);
 
   // Run on mount
   useEffect(() => {
     runSimulation();
   }, [runSimulation]);
+
+  // Auto-start tour on first visit
+  useEffect(() => {
+    const hasCompletedTour = localStorage.getItem(TOUR_COMPLETED_KEY);
+    if (!hasCompletedTour) {
+      // Small delay to let initial render complete
+      const timer = setTimeout(() => {
+        setIsTourActive(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Tour handlers
+  const handleTourClose = useCallback(() => {
+    setIsTourActive(false);
+  }, []);
+
+  const handleTourComplete = useCallback(() => {
+    setIsTourActive(false);
+    localStorage.setItem(TOUR_COMPLETED_KEY, 'true');
+  }, []);
+
+  const handleStartTour = useCallback(() => {
+    setIsTourActive(true);
+  }, []);
+
+  // Show sticky control when Controls scrolls out of view
+  useEffect(() => {
+    const controlsEl = controlsRef.current;
+    if (!controlsEl) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Show sticky when controls are less than 50% visible
+        setShowStickyControl(!entry.isIntersecting || entry.intersectionRatio < 0.5);
+      },
+      { threshold: [0, 0.5, 1] }
+    );
+
+    observer.observe(controlsEl);
+    return () => observer.disconnect();
+  }, []);
+
+  // Playback animation effect
+  useEffect(() => {
+    if (isPlaying) {
+      const speedMs = playbackSpeed === 'slow' ? 500 : playbackSpeed === 'normal' ? 200 : 50;
+
+      playbackRef.current = setInterval(() => {
+        setConfig((c) => {
+          if (c.sinkhornIters >= 30) {
+            // Stop at 30
+            setIsPlaying(false);
+            return c;
+          }
+          return { ...c, sinkhornIters: c.sinkhornIters + 1 };
+        });
+      }, speedMs);
+
+      return () => {
+        if (playbackRef.current) {
+          clearInterval(playbackRef.current);
+        }
+      };
+    }
+  }, [isPlaying, playbackSpeed]);
+
+  // Handle play toggle
+  const handlePlayToggle = useCallback(() => {
+    if (isPlaying) {
+      setIsPlaying(false);
+    } else {
+      // Reset to 0 if at 30, then start
+      if (config.sinkhornIters >= 30) {
+        setConfig((c) => ({ ...c, sinkhornIters: 0 }));
+      }
+      setIsPlaying(true);
+    }
+  }, [isPlaying, config.sinkhornIters]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -209,6 +309,15 @@ export function ManifoldDial() {
 
   return (
     <div className="max-w-6xl mx-auto p-4 space-y-6">
+      {/* Sticky Sinkhorn control - appears when scrolled */}
+      <StickySinkhornControl
+        value={config.sinkhornIters}
+        onChange={(value) => handleConfigChange({ ...config, sinkhornIters: value })}
+        isVisible={showStickyControl}
+        isPlaying={isPlaying}
+        onPlayToggle={handlePlayToggle}
+      />
+
       {/* Header */}
       <div className="text-center space-y-2">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -253,6 +362,7 @@ export function ManifoldDial() {
             <Info size={14} />
             <span className="hidden sm:inline">About</span>
           </button>
+          <TourButton onClick={handleStartTour} />
         </div>
       </div>
 
@@ -328,15 +438,25 @@ export function ManifoldDial() {
         </div>
       )}
 
+      {/* Insight Banner */}
+      <InsightBanner
+        sinkhornIters={config.sinkhornIters}
+        finalGain={results?.mhc.composite[results.mhc.composite.length - 1]?.forwardGain}
+      />
+
       {/* Main content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Controls */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1" ref={controlsRef}>
           <Controls
             config={config}
             onChange={handleConfigChange}
             onRandomize={randomizeSeed}
             isComputing={isComputing}
+            isPlaying={isPlaying}
+            playbackSpeed={playbackSpeed}
+            onPlayToggle={handlePlayToggle}
+            onSpeedChange={setPlaybackSpeed}
           />
 
           {/* Matrix previews */}
@@ -361,26 +481,34 @@ export function ManifoldDial() {
 
         {/* Chart and metrics */}
         <div className="lg:col-span-2 space-y-6">
-          <GainPlot
-            data={plotData}
-            height={300}
-            selectedLayer={selectedLayer}
-            onLayerSelect={setSelectedLayer}
-          />
-
-          <EigenvaluePlot
-            data={eigenvalueData}
-            height={250}
-            selectedLayer={selectedLayer}
-            onLayerSelect={setSelectedLayer}
-          />
-
-          <UniformDistancePlot
-            data={uniformDistanceData}
-            n={config.n}
-            height={250}
-            selectedLayer={selectedLayer}
-            onLayerSelect={setSelectedLayer}
+          <ChartTabs
+            activeTab={activeChartTab}
+            onTabChange={handleTabChange}
+            gainChart={
+              <GainPlot
+                data={plotData}
+                height={300}
+                selectedLayer={selectedLayer}
+                onLayerSelect={setSelectedLayer}
+              />
+            }
+            eigenvalueChart={
+              <EigenvaluePlot
+                data={eigenvalueData}
+                height={250}
+                selectedLayer={selectedLayer}
+                onLayerSelect={setSelectedLayer}
+              />
+            }
+            uniformityChart={
+              <UniformDistancePlot
+                data={uniformDistanceData}
+                n={config.n}
+                height={250}
+                selectedLayer={selectedLayer}
+                onLayerSelect={setSelectedLayer}
+              />
+            }
           />
 
           {/* Layer selector */}
@@ -432,6 +560,13 @@ export function ManifoldDial() {
           and watch the mHC line transform from explosive behavior to stable behavior!
         </p>
       </div>
+
+      {/* Guided tour overlay */}
+      <TourOverlay
+        isActive={isTourActive}
+        onClose={handleTourClose}
+        onComplete={handleTourComplete}
+      />
     </div>
   );
 }

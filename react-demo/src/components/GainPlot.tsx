@@ -48,7 +48,7 @@ export function GainPlot({
   };
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm p-4">
+    <div className="w-full bg-white rounded-lg shadow-sm p-4" data-tour="gain-chart">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
         Composite Forward Gain vs Layer Depth
       </h3>
