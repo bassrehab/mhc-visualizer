@@ -6,6 +6,8 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, Check, Keyboard, Info } from 'lucide-react';
 import { Controls } from './Controls';
 import { GainPlot } from './GainPlot';
+import { EigenvaluePlot } from './EigenvaluePlot';
+import { UniformDistancePlot } from './UniformDistancePlot';
 import { MatrixHeatmap } from './MatrixHeatmap';
 import { MetricsPanel } from './MetricsPanel';
 import { runComparison, getSampleMatrix } from '../lib/simulation';
@@ -155,6 +157,45 @@ export function ManifoldDial() {
       baseline: results.baseline.composite.map((c) => c.forwardGain),
       hc: results.hc.composite.map((c) => c.forwardGain),
       mhc: results.mhc.composite.map((c) => c.forwardGain),
+    };
+  }, [results]);
+
+  // Prepare eigenvalue data
+  const eigenvalueData = useMemo(() => {
+    if (!results) {
+      return {
+        baseline: [],
+        hc: [],
+        mhc: [],
+      };
+    }
+
+    return {
+      baseline: results.baseline.composite.map((c) => ({
+        largest: c.largestEigenvalueMag,
+        second: c.secondEigenvalueMag,
+      })),
+      hc: results.hc.composite.map((c) => ({
+        largest: c.largestEigenvalueMag,
+        second: c.secondEigenvalueMag,
+      })),
+      mhc: results.mhc.composite.map((c) => ({
+        largest: c.largestEigenvalueMag,
+        second: c.secondEigenvalueMag,
+      })),
+    };
+  }, [results]);
+
+  // Prepare uniform distance data
+  const uniformDistanceData = useMemo(() => {
+    if (!results) {
+      return { baseline: [], hc: [], mhc: [] };
+    }
+
+    return {
+      baseline: results.baseline.composite.map((c) => c.distanceFromUniform),
+      hc: results.hc.composite.map((c) => c.distanceFromUniform),
+      mhc: results.mhc.composite.map((c) => c.distanceFromUniform),
     };
   }, [results]);
 
@@ -322,7 +363,22 @@ export function ManifoldDial() {
         <div className="lg:col-span-2 space-y-6">
           <GainPlot
             data={plotData}
-            height={350}
+            height={300}
+            selectedLayer={selectedLayer}
+            onLayerSelect={setSelectedLayer}
+          />
+
+          <EigenvaluePlot
+            data={eigenvalueData}
+            height={250}
+            selectedLayer={selectedLayer}
+            onLayerSelect={setSelectedLayer}
+          />
+
+          <UniformDistancePlot
+            data={uniformDistanceData}
+            n={config.n}
+            height={250}
             selectedLayer={selectedLayer}
             onLayerSelect={setSelectedLayer}
           />
@@ -361,6 +417,15 @@ export function ManifoldDial() {
           matrices onto <em>doubly stochastic</em> matrices using Sinkhorn-Knopp.
           Because doubly stochastic matrices are closed under multiplication, composite
           gains stay bounded near 1.
+        </p>
+        <p className="text-blue-800 text-sm">
+          <strong>Eigenvalue decay:</strong> The second chart shows how |λ₂| decays with depth.
+          For doubly stochastic matrices, |λ₂| &lt; 1, so products converge toward uniformity.
+        </p>
+        <p className="text-blue-800 text-sm">
+          <strong>Distance from uniform:</strong> The third chart directly answers "do we end up
+          with just the average?" - it shows the Frobenius distance from the 1/n matrix. For mHC,
+          this decreases with depth, showing gradual convergence to uniform averaging.
         </p>
         <p className="text-blue-800 text-sm">
           <strong>Try it:</strong> Drag the "Sinkhorn Iterations" slider from 0 to 20

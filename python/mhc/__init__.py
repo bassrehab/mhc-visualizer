@@ -15,7 +15,15 @@ Based on DeepSeek's mHC paper: https://arxiv.org/abs/2512.24880
 """
 
 from .sinkhorn import sinkhorn_knopp, is_doubly_stochastic, projection_error
-from .metrics import forward_gain, backward_gain, spectral_norm, compute_all_metrics
+from .metrics import (
+    forward_gain,
+    backward_gain,
+    spectral_norm,
+    compute_all_metrics,
+    eigenvalues_sorted,
+    second_largest_eigenvalue_magnitude,
+    distance_from_uniform,
+)
 from .simulation import generate_residual_matrix, simulate_depth, run_comparison
 
 # PyTorch modules (optional import - requires torch)

@@ -16,6 +16,9 @@ export interface Metrics {
   rowSumMaxDev: number;
   colSumMaxDev: number;
   minEntry: number;
+  largestEigenvalueMag: number;
+  secondEigenvalueMag: number;
+  distanceFromUniform: number;
 }
 
 export interface LayerMetrics extends Metrics {

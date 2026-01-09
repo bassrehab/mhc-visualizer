@@ -1,5 +1,7 @@
 /**
- * Line chart showing composite gain vs layer depth.
+ * Line chart showing eigenvalue decay vs layer depth.
+ * This visualizes how the second-largest eigenvalue magnitude decreases
+ * as matrices are multiplied together, showing convergence to uniformity.
  */
 
 import {
@@ -14,34 +16,34 @@ import {
 } from 'recharts';
 import { COLORS, LABELS, type Method } from '../lib/types';
 
-interface GainPlotProps {
+interface EigenvaluePlotProps {
   data: {
-    baseline: number[];
-    hc: number[];
-    mhc: number[];
+    baseline: { largest: number; second: number }[];
+    hc: { largest: number; second: number }[];
+    mhc: { largest: number; second: number }[];
   };
   height?: number;
   selectedLayer?: number;
   onLayerSelect?: (layer: number) => void;
 }
 
-export function GainPlot({
+export function EigenvaluePlot({
   data,
-  height = 400,
+  height = 300,
   selectedLayer,
   onLayerSelect,
-}: GainPlotProps) {
-  // Transform data for Recharts
+}: EigenvaluePlotProps) {
+  // Transform data for Recharts - show second-largest eigenvalue magnitude
   const chartData = data.baseline.map((_, index) => ({
     layer: index,
-    baseline: data.baseline[index],
-    hc: data.hc[index],
-    mhc: data.mhc[index],
+    baseline: data.baseline[index].second,
+    hc: data.hc[index].second,
+    mhc: data.mhc[index].second,
   }));
 
   // Custom tooltip formatter
   const formatValue = (value: number) => {
-    if (value >= 1000) {
+    if (value < 0.001) {
       return value.toExponential(2);
     }
     return value.toFixed(4);
@@ -49,9 +51,12 @@ export function GainPlot({
 
   return (
     <div className="w-full bg-white rounded-lg shadow-sm p-4">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        Composite Forward Gain vs Layer Depth
+      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        Second-Largest Eigenvalue |λ₂| vs Layer Depth
       </h3>
+      <p className="text-sm text-gray-600 mb-4">
+        Shows convergence rate to uniform matrix. Lower |λ₂| = faster averaging.
+      </p>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart
           data={chartData}
@@ -72,13 +77,12 @@ export function GainPlot({
           />
           <YAxis
             scale="log"
-            domain={[0.5, 'auto']}
-            allowDataOverflow
+            domain={[1e-16, 'auto']}
             tickFormatter={(value) =>
-              value >= 1000 ? value.toExponential(0) : value.toFixed(1)
+              value >= 1000 ? value.toExponential(0) : value >= 1 ? value.toFixed(1) : value.toExponential(0)
             }
             label={{
-              value: 'Composite Forward Gain (log)',
+              value: '|λ₂| (log scale)',
               angle: -90,
               position: 'insideLeft',
               dx: -35,
@@ -94,24 +98,36 @@ export function GainPlot({
             }}
             labelFormatter={(label) => `Layer ${label}`}
           />
-          <Legend
-            formatter={(value: string) => LABELS[value as Method]}
-          />
+          <Legend formatter={(value: string) => LABELS[value as Method]} />
 
-          {/* Stability threshold at y=1 */}
+          {/* Reference line at y=1 (no decay) */}
           <ReferenceLine
             y={1}
             stroke="#9ca3af"
             strokeDasharray="5 5"
-            label={{ value: 'Stable (gain=1)', position: 'right', fill: '#6b7280', fontSize: 10 }}
+            label={{
+              value: 'No decay',
+              position: 'right',
+              fill: '#6b7280',
+              fontSize: 10,
+            }}
+          />
+
+          {/* Reference line showing where eigenvalue becomes negligible */}
+          <ReferenceLine
+            y={0.01}
+            stroke="#fbbf24"
+            strokeDasharray="3 3"
+            label={{
+              value: '~Uniform',
+              position: 'right',
+              fill: '#d97706',
+              fontSize: 10,
+            }}
           />
 
           {selectedLayer !== undefined && (
-            <ReferenceLine
-              x={selectedLayer}
-              stroke="#9ca3af"
-              strokeDasharray="3 3"
-            />
+            <ReferenceLine x={selectedLayer} stroke="#9ca3af" strokeDasharray="3 3" />
           )}
 
           <Line

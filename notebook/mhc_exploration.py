@@ -184,6 +184,80 @@ def _(base_chart):
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
+    ## Eigenvalue Decay: The Convergence Story
+
+    The commenter on Reddit raised an excellent point: while doubly stochastic matrices keep gains bounded,
+    their eigenvalues (except λ₁=1) get pushed toward zero with each multiplication.
+
+    This means the composite matrix converges toward the **uniform averaging matrix** (all entries = 1/n).
+
+    The chart below shows |λ₂| (second-largest eigenvalue magnitude) - this controls the rate of convergence:
+    - **Baseline (Identity)**: |λ₂| = 1 forever (no mixing)
+    - **HC**: Eigenvalues can grow unboundedly
+    - **mHC**: |λ₂| < 1, decays toward 0 (gradual averaging)
+
+    This is the fundamental tradeoff: **bounded gains** (stable training) vs **information mixing** (convergence to uniformity).
+    """)
+    return
+
+
+@app.cell
+def _(eigenvalue_chart):
+    mo.ui.altair_chart(eigenvalue_chart)
+    return
+
+
+@app.cell
+def _(depth_slider, results):
+    # Build eigenvalue DataFrame from results
+    eig_data = []
+    for method in ["baseline", "hc", "mhc"]:
+        for _i, _m in enumerate(results[method]["composite"]):
+            eig_data.append(
+                {
+                    "layer": _i + 1,
+                    "eigenvalue": _m["second_eigenvalue_mag"],
+                    "method": method.upper() if method != "mhc" else "mHC",
+                }
+            )
+    eig_df = pd.DataFrame(eig_data)
+
+    # Altair chart with log scale for eigenvalues
+    eigenvalue_chart = (
+        alt.Chart(eig_df)
+        .mark_line(strokeWidth=2.5)
+        .encode(
+            x=alt.X(
+                "layer:Q",
+                title="Layer Depth",
+                scale=alt.Scale(domain=[1, depth_slider.value]),
+            ),
+            y=alt.Y(
+                "eigenvalue:Q",
+                scale=alt.Scale(type="log", domain=[1e-16, 10]),
+                title="|λ₂| Second Eigenvalue (log scale)",
+            ),
+            color=alt.Color(
+                "method:N",
+                scale=alt.Scale(
+                    domain=["BASELINE", "HC", "mHC"],
+                    range=["#10b981", "#ef4444", "#3b82f6"],
+                ),
+                legend=alt.Legend(title="Method"),
+            ),
+        )
+        .properties(
+            width=700,
+            height=300,
+            title="Eigenvalue Decay: Convergence to Uniform Matrix",
+        )
+    )
+    return eig_df, eigenvalue_chart
+
+
+@app.cell(hide_code=True)
+def _():
+    mo.md(r"""
     ## Stability Metrics
 
     The table below shows metrics at the selected layer:
@@ -225,6 +299,8 @@ def _(layer_selector, results):
     | Forward Gain | {_format_gain(baseline_m["forward_gain"])} | {_format_gain(hc_m["forward_gain"])} | {_format_gain(mhc_m["forward_gain"])} |
     | Backward Gain | {_format_gain(baseline_m["backward_gain"])} | {_format_gain(hc_m["backward_gain"])} | {_format_gain(mhc_m["backward_gain"])} |
     | Spectral Norm | {_format_gain(baseline_m["spectral_norm"])} | {_format_gain(hc_m["spectral_norm"])} | {_format_gain(mhc_m["spectral_norm"])} |
+    | \|λ₁\| (largest) | {_format_gain(baseline_m["largest_eigenvalue_mag"])} | {_format_gain(hc_m["largest_eigenvalue_mag"])} | {_format_gain(mhc_m["largest_eigenvalue_mag"])} |
+    | \|λ₂\| (2nd) | {_format_gain(baseline_m["second_eigenvalue_mag"])} | {_format_gain(hc_m["second_eigenvalue_mag"])} | {_format_gain(mhc_m["second_eigenvalue_mag"])} |
     | Row Sum Dev | {baseline_m["row_sum_max_dev"]:.2e} | {hc_m["row_sum_max_dev"]:.2e} | {mhc_m["row_sum_max_dev"]:.2e} |
     | Col Sum Dev | {baseline_m["col_sum_max_dev"]:.2e} | {hc_m["col_sum_max_dev"]:.2e} | {mhc_m["col_sum_max_dev"]:.2e} |
     """)
@@ -379,6 +455,12 @@ def _():
        - k=0: Unconstrained (like HC) - unstable
        - k>=10: Well-projected - stable
        - Sweet spot around k=20 for most applications
+
+    4. **Eigenvalue Decay: The Tradeoff**
+       - For doubly stochastic matrices, |λ₂| < 1 (except permutations)
+       - Products push |λ₂|^L → 0, converging to uniform averaging matrix
+       - This is the price of stability: gradual information mixing
+       - In practice, residual connections (`x + αHx + layer_output`) mitigate this
 
     ---
 

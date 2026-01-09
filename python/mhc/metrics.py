@@ -22,6 +22,94 @@ Based on DeepSeek's mHC paper: https://arxiv.org/abs/2512.24880
 import numpy as np
 
 
+def eigenvalues_sorted(matrix: np.ndarray) -> np.ndarray:
+    """
+    Compute eigenvalues sorted by magnitude (descending).
+
+    For doubly stochastic matrices:
+    - The largest eigenvalue is always 1 (eigenvector = all-ones)
+    - All other eigenvalues have |λ| <= 1
+    - Products of DS matrices push subdominant eigenvalues toward 0
+
+    Args:
+        matrix: Input matrix of shape (n, n)
+
+    Returns:
+        Array of eigenvalues sorted by |λ| descending
+
+    Example:
+        >>> eigs = eigenvalues_sorted(np.eye(4))
+        >>> np.allclose(eigs, [1, 1, 1, 1])
+        True
+    """
+    eigenvalues = np.linalg.eigvals(matrix)
+    # Sort by magnitude descending
+    idx = np.argsort(np.abs(eigenvalues))[::-1]
+    return eigenvalues[idx]
+
+
+def second_largest_eigenvalue_magnitude(matrix: np.ndarray) -> float:
+    """
+    Compute the magnitude of the second-largest eigenvalue.
+
+    This is the key quantity for understanding convergence in products of
+    doubly stochastic matrices. For DS matrices:
+    - λ_1 = 1 always (the Perron-Frobenius eigenvalue)
+    - |λ_2| < 1 for generic DS matrices (spectral gap)
+    - After L multiplications, |λ_2|^L → 0, causing convergence to uniform matrix
+
+    The rate of convergence to the uniform matrix 1/n is governed by |λ_2|.
+    Larger |λ_2| = slower convergence = more information preserved.
+
+    Args:
+        matrix: Input matrix of shape (n, n)
+
+    Returns:
+        |λ_2|, the second-largest eigenvalue magnitude
+
+    Example:
+        >>> second_largest_eigenvalue_magnitude(np.eye(4))
+        1.0
+        >>> # For a doubly stochastic matrix that's not a permutation:
+        >>> P = np.array([[0.5, 0.5], [0.5, 0.5]])  # Uniform matrix
+        >>> second_largest_eigenvalue_magnitude(P) < 0.01
+        True
+    """
+    eigs = eigenvalues_sorted(matrix)
+    if len(eigs) < 2:
+        return 0.0
+    return float(np.abs(eigs[1]))
+
+
+def distance_from_uniform(matrix: np.ndarray) -> float:
+    """
+    Compute Frobenius norm distance from the uniform averaging matrix.
+
+    The uniform matrix U has all entries equal to 1/n, where n is the matrix size.
+    For doubly stochastic matrices, repeated multiplication converges to U.
+
+    This metric directly shows how much "information mixing" has occurred:
+    - Distance = 0 means complete convergence to uniform (all information averaged)
+    - Distance = sqrt(n-1) for identity matrix (no mixing)
+    - Distance decreases with each DS matrix multiplication
+
+    Args:
+        matrix: Input matrix of shape (n, n)
+
+    Returns:
+        ||M - U||_F, the Frobenius norm distance from uniform matrix
+
+    Example:
+        >>> distance_from_uniform(np.eye(4))  # Identity is far from uniform
+        1.7320508075688772
+        >>> distance_from_uniform(np.ones((4, 4)) / 4)  # Uniform matrix
+        0.0
+    """
+    n = matrix.shape[0]
+    uniform = np.ones((n, n)) / n
+    return float(np.linalg.norm(matrix - uniform, 'fro'))
+
+
 def forward_gain(matrix: np.ndarray) -> float:
     """
     Compute maximum absolute row sum (worst-case signal amplification).
@@ -150,6 +238,11 @@ def compute_all_metrics(matrix: np.ndarray) -> dict:
     row_sums = matrix.sum(axis=1)
     col_sums = matrix.sum(axis=0)
 
+    # Compute eigenvalues for convergence analysis
+    eigs = eigenvalues_sorted(matrix)
+    largest_eig_mag = float(np.abs(eigs[0])) if len(eigs) > 0 else 0.0
+    second_eig_mag = float(np.abs(eigs[1])) if len(eigs) > 1 else 0.0
+
     return {
         'spectral_norm': spectral_norm(matrix),
         'forward_gain': float(np.abs(row_sums).max()),
@@ -157,4 +250,7 @@ def compute_all_metrics(matrix: np.ndarray) -> dict:
         'row_sum_max_dev': float(np.abs(row_sums - 1).max()),
         'col_sum_max_dev': float(np.abs(col_sums - 1).max()),
         'min_entry': float(matrix.min()),
+        'largest_eigenvalue_mag': largest_eig_mag,
+        'second_eigenvalue_mag': second_eig_mag,
+        'distance_from_uniform': distance_from_uniform(matrix),
     }

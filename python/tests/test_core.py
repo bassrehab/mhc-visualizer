@@ -105,7 +105,9 @@ class TestMetrics:
 
         expected_keys = {
             'spectral_norm', 'forward_gain', 'backward_gain',
-            'row_sum_max_dev', 'col_sum_max_dev', 'min_entry'
+            'row_sum_max_dev', 'col_sum_max_dev', 'min_entry',
+            'largest_eigenvalue_mag', 'second_eigenvalue_mag',
+            'distance_from_uniform'
         }
         assert set(metrics.keys()) == expected_keys
 

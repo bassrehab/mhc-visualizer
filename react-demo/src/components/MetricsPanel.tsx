@@ -38,6 +38,9 @@ function MethodCard({
     spectralNorm: number;
     rowSumMaxDev: number;
     colSumMaxDev: number;
+    largestEigenvalueMag: number;
+    secondEigenvalueMag: number;
+    distanceFromUniform: number;
   };
   isFinal: boolean;
 }) {
@@ -66,7 +69,19 @@ function MethodCard({
           <span className="text-gray-600">Spectral Norm:</span>
           <span className="font-mono">{formatNumber(metrics.spectralNorm)}</span>
         </div>
+        <div className="flex justify-between border-t border-gray-100 pt-2 mt-2">
+          <span className="text-gray-600">|λ₁| (largest):</span>
+          <span className="font-mono">{formatNumber(metrics.largestEigenvalueMag)}</span>
+        </div>
         <div className="flex justify-between">
+          <span className="text-gray-600">|λ₂| (2nd):</span>
+          <span className="font-mono">{formatNumber(metrics.secondEigenvalueMag)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-600">Dist to Uniform:</span>
+          <span className="font-mono">{formatNumber(metrics.distanceFromUniform)}</span>
+        </div>
+        <div className="flex justify-between border-t border-gray-100 pt-2 mt-2">
           <span className="text-gray-600">Row Sum Dev:</span>
           <span className="font-mono">{formatNumber(metrics.rowSumMaxDev)}</span>
         </div>
@@ -121,6 +136,9 @@ export function MetricsPanel({ results, selectedLayer }: MetricsPanelProps) {
                 spectralNorm: composite.spectralNorm,
                 rowSumMaxDev: composite.rowSumMaxDev,
                 colSumMaxDev: composite.colSumMaxDev,
+                largestEigenvalueMag: composite.largestEigenvalueMag,
+                secondEigenvalueMag: composite.secondEigenvalueMag,
+                distanceFromUniform: composite.distanceFromUniform,
               }}
               isFinal={isFinal}
             />

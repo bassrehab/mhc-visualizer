@@ -1,5 +1,7 @@
 /**
- * Line chart showing composite gain vs layer depth.
+ * Line chart showing distance from uniform matrix vs layer depth.
+ * This visualizes how close the composite matrix is to the uniform averaging matrix (1/n).
+ * Directly answers: "Do the last layers only have the average of the first layer?"
  */
 
 import {
@@ -14,23 +16,25 @@ import {
 } from 'recharts';
 import { COLORS, LABELS, type Method } from '../lib/types';
 
-interface GainPlotProps {
+interface UniformDistancePlotProps {
   data: {
     baseline: number[];
     hc: number[];
     mhc: number[];
   };
+  n: number; // matrix size, needed to show max distance
   height?: number;
   selectedLayer?: number;
   onLayerSelect?: (layer: number) => void;
 }
 
-export function GainPlot({
+export function UniformDistancePlot({
   data,
-  height = 400,
+  n,
+  height = 250,
   selectedLayer,
   onLayerSelect,
-}: GainPlotProps) {
+}: UniformDistancePlotProps) {
   // Transform data for Recharts
   const chartData = data.baseline.map((_, index) => ({
     layer: index,
@@ -39,9 +43,12 @@ export function GainPlot({
     mhc: data.mhc[index],
   }));
 
+  // Max distance for identity matrix is sqrt(n - 1)
+  const maxDistance = Math.sqrt(n - 1);
+
   // Custom tooltip formatter
   const formatValue = (value: number) => {
-    if (value >= 1000) {
+    if (value < 0.001) {
       return value.toExponential(2);
     }
     return value.toFixed(4);
@@ -49,9 +56,12 @@ export function GainPlot({
 
   return (
     <div className="w-full bg-white rounded-lg shadow-sm p-4">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        Composite Forward Gain vs Layer Depth
+      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        Distance from Uniform Matrix
       </h3>
+      <p className="text-sm text-gray-600 mb-4">
+        Shows convergence to averaging matrix (1/n). Distance = 0 means complete uniformity.
+      </p>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart
           data={chartData}
@@ -72,13 +82,12 @@ export function GainPlot({
           />
           <YAxis
             scale="log"
-            domain={[0.5, 'auto']}
-            allowDataOverflow
+            domain={[1e-10, 'auto']}
             tickFormatter={(value) =>
-              value >= 1000 ? value.toExponential(0) : value.toFixed(1)
+              value >= 1 ? value.toFixed(1) : value.toExponential(0)
             }
             label={{
-              value: 'Composite Forward Gain (log)',
+              value: '||M - U||_F (log scale)',
               angle: -90,
               position: 'insideLeft',
               dx: -35,
@@ -94,24 +103,36 @@ export function GainPlot({
             }}
             labelFormatter={(label) => `Layer ${label}`}
           />
-          <Legend
-            formatter={(value: string) => LABELS[value as Method]}
-          />
+          <Legend formatter={(value: string) => LABELS[value as Method]} />
 
-          {/* Stability threshold at y=1 */}
+          {/* Reference line at identity distance */}
           <ReferenceLine
-            y={1}
+            y={maxDistance}
             stroke="#9ca3af"
             strokeDasharray="5 5"
-            label={{ value: 'Stable (gain=1)', position: 'right', fill: '#6b7280', fontSize: 10 }}
+            label={{
+              value: `Identity (${maxDistance.toFixed(2)})`,
+              position: 'right',
+              fill: '#6b7280',
+              fontSize: 10,
+            }}
+          />
+
+          {/* Reference line showing "nearly uniform" threshold */}
+          <ReferenceLine
+            y={0.1}
+            stroke="#fbbf24"
+            strokeDasharray="3 3"
+            label={{
+              value: 'Nearly uniform',
+              position: 'right',
+              fill: '#d97706',
+              fontSize: 10,
+            }}
           />
 
           {selectedLayer !== undefined && (
-            <ReferenceLine
-              x={selectedLayer}
-              stroke="#9ca3af"
-              strokeDasharray="3 3"
-            />
+            <ReferenceLine x={selectedLayer} stroke="#9ca3af" strokeDasharray="3 3" />
           )}
 
           <Line
