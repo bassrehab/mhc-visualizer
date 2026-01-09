@@ -86,6 +86,26 @@ Side-by-side comparison of HC vs mHC residual matrices:
 - Row/column sums displayed
 - Visual confirmation of doubly stochastic property
 
+## Interactive Features
+
+### Guided Tour
+First-time visitors get an automatic walkthrough highlighting key controls and visualizations. Replay anytime via the "Tour" button.
+
+### Tabbed Charts
+Switch between **Gain**, **Eigenvalues**, **Uniformity**, or view **All** charts at once. On mobile, charts are shown one at a time for better usability.
+
+### Eigenvalue Decay
+The eigenvalue plot shows |λ₂| (second-largest eigenvalue magnitude) vs depth. Toggle the theoretical decay overlay (|λ₂|^L) to compare predicted vs actual convergence.
+
+### Animation Controls
+Click **Play** to animate Sinkhorn iterations from 0→30 and watch the transition in real-time. Choose from Slow, Normal, or Fast playback speeds.
+
+### Spectral Gap Indicator
+The metrics panel shows the spectral gap (1 - |λ₂|) with color-coded convergence speed: green (fast), yellow (moderate), red (slow).
+
+### Mobile Support
+Larger touch targets, collapsible controls, and responsive chart sizing for comfortable use on phones and tablets.
+
 ## The Mathematics
 
 ### Why Doubly Stochastic?
