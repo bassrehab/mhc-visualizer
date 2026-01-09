@@ -115,6 +115,7 @@ export function ManifoldDial() {
   // Tour handlers
   const handleTourClose = useCallback(() => {
     setIsTourActive(false);
+    localStorage.setItem(TOUR_COMPLETED_KEY, 'true'); // Don't show again if skipped
   }, []);
 
   const handleTourComplete = useCallback(() => {
