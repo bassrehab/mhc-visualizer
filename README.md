@@ -6,7 +6,7 @@
 [![Python Tests](https://img.shields.io/badge/tests-32%20passed-brightgreen)](python/tests)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> Interactive visualization demonstrating why Manifold-Constrained Hyper-Connections (mHC) stabilize deep neural networks.
+> Interactive visualization demonstrating why Manifold-Constrained Hyper-Connections (mHC) stabilize deep neural networks. **Check the [LIVE Demo Here](https://subhadipmitra.com/mhc-visualizer/)**
 
 **Author:** [Subhadip Mitra](https://github.com/bassrehab) (<contact@subhadipmitra.com>)
 
