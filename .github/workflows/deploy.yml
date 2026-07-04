@@ -1,0 +1,50 @@
+name: Deploy to GitHub Pages
+
+# Builds react-demo and publishes it to the gh-pages branch on every push to
+# main. GitHub Pages serves that branch at bassrehab.github.io/mhc-visualizer/,
+# which subhadipmitra.com/mhc-visualizer/ fronts via Cloudflare.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'react-demo/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: react-demo
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: react-demo/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./react-demo/dist
+          commit_message: 'Deploy: ${{ github.event.head_commit.message }}'
