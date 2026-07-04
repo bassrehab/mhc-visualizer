@@ -108,12 +108,12 @@ export function UniformDistancePlot({
           {/* Reference line at identity distance */}
           <ReferenceLine
             y={maxDistance}
-            stroke="#9ca3af"
+            stroke="#8b867d"
             strokeDasharray="5 5"
             label={{
               value: `Identity (${maxDistance.toFixed(2)})`,
               position: 'right',
-              fill: '#6b7280',
+              fill: '#56524b',
               fontSize: 10,
             }}
           />
@@ -132,7 +132,7 @@ export function UniformDistancePlot({
           />
 
           {selectedLayer !== undefined && (
-            <ReferenceLine x={selectedLayer} stroke="#9ca3af" strokeDasharray="3 3" />
+            <ReferenceLine x={selectedLayer} stroke="#8b867d" strokeDasharray="3 3" />
           )}
 
           <Line

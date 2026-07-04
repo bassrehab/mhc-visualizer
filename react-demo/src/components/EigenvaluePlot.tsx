@@ -131,12 +131,12 @@ export function EigenvaluePlot({
           {/* Reference line at y=1 (no decay) */}
           <ReferenceLine
             y={1}
-            stroke="#9ca3af"
+            stroke="#8b867d"
             strokeDasharray="5 5"
             label={{
               value: 'No decay',
               position: 'right',
-              fill: '#6b7280',
+              fill: '#56524b',
               fontSize: 10,
             }}
           />
@@ -155,7 +155,7 @@ export function EigenvaluePlot({
           />
 
           {selectedLayer !== undefined && (
-            <ReferenceLine x={selectedLayer} stroke="#9ca3af" strokeDasharray="3 3" />
+            <ReferenceLine x={selectedLayer} stroke="#8b867d" strokeDasharray="3 3" />
           )}
 
           <Line
@@ -186,7 +186,7 @@ export function EigenvaluePlot({
             <Line
               type="monotone"
               dataKey="theoretical"
-              stroke="#9ca3af"
+              stroke="#8b867d"
               strokeWidth={1.5}
               strokeDasharray="5 5"
               dot={false}

@@ -320,16 +320,20 @@ export function ManifoldDial() {
       />
 
       {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+      <div className="space-y-2 border-b border-gray-200 pb-6">
+        <p className="text-xs font-mono uppercase tracking-widest text-blue-600">
+          Instrument / Manifold-Constrained Hyper-Connections
+        </p>
+        <h1 className="text-2xl md:text-3xl font-medium text-gray-900">
           The Manifold Dial
         </h1>
-        <p className="text-base md:text-lg text-gray-600">
-          Visualizing mHC Stability: How Sinkhorn Projection Tames Signal Explosion
+        <p className="text-base text-gray-600 max-w-2xl">
+          How a few Sinkhorn iterations project residual mixing onto the doubly-stochastic
+          manifold and keep signal from exploding across depth.
         </p>
 
         {/* Action buttons */}
-        <div className="flex justify-center gap-2 mt-3 flex-wrap">
+        <div className="flex gap-2 pt-2 flex-wrap">
           <a
             href="https://github.com/bassrehab/mhc-visualizer"
             target="_blank"
@@ -379,34 +383,34 @@ export function ManifoldDial() {
 
       {/* Keyboard help modal */}
       {showKeyboardHelp && (
-        <div className="bg-gray-800 text-white rounded-lg p-4 text-sm">
+        <div className="bg-white text-gray-700 p-4 text-sm">
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold">Keyboard Shortcuts</h3>
             <button
               onClick={() => setShowKeyboardHelp(false)}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-400 hover:text-gray-700"
             >
               ✕
             </button>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <div><kbd className="bg-gray-700 px-2 py-0.5 rounded">←/→</kbd> Sinkhorn ±1</div>
-            <div><kbd className="bg-gray-700 px-2 py-0.5 rounded">↑/↓</kbd> Sinkhorn ±5</div>
-            <div><kbd className="bg-gray-700 px-2 py-0.5 rounded">Space</kbd> Randomize seed</div>
-            <div><kbd className="bg-gray-700 px-2 py-0.5 rounded">R</kbd> Reset to defaults</div>
-            <div><kbd className="bg-gray-700 px-2 py-0.5 rounded">?</kbd> Toggle this help</div>
+            <div><kbd className="bg-gray-100 px-2 py-0.5 rounded font-mono">←/→</kbd> Sinkhorn ±1</div>
+            <div><kbd className="bg-gray-100 px-2 py-0.5 rounded font-mono">↑/↓</kbd> Sinkhorn ±5</div>
+            <div><kbd className="bg-gray-100 px-2 py-0.5 rounded font-mono">Space</kbd> Randomize seed</div>
+            <div><kbd className="bg-gray-100 px-2 py-0.5 rounded font-mono">R</kbd> Reset to defaults</div>
+            <div><kbd className="bg-gray-100 px-2 py-0.5 rounded font-mono">?</kbd> Toggle this help</div>
           </div>
         </div>
       )}
 
       {/* About modal */}
       {showAbout && (
-        <div className="bg-gray-800 text-white rounded-lg p-4 text-sm">
+        <div className="bg-white text-gray-700 p-4 text-sm">
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold">About</h3>
             <button
               onClick={() => setShowAbout(false)}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-400 hover:text-gray-700"
             >
               ✕
             </button>
@@ -418,7 +422,7 @@ export function ManifoldDial() {
                 href="https://github.com/bassrehab"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:underline"
+                className="text-blue-600 hover:underline"
               >
                 Subhadip Mitra
               </a>
@@ -429,7 +433,7 @@ export function ManifoldDial() {
                 href="https://github.com/bassrehab/mhc-visualizer"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:underline"
+                className="text-blue-600 hover:underline"
               >
                 github.com/bassrehab/mhc-visualizer
               </a>
@@ -440,7 +444,7 @@ export function ManifoldDial() {
                 href="https://arxiv.org/abs/2512.24880"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:underline"
+                className="text-blue-600 hover:underline"
               >
                 DeepSeek's mHC paper
               </a>
@@ -472,7 +476,7 @@ export function ManifoldDial() {
 
           {/* Matrix previews */}
           <div className="mt-6 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800">
+            <h3 className="font-mono text-xs uppercase tracking-widest text-gray-500">
               Sample Residual Matrices
             </h3>
             <div className="grid grid-cols-2 gap-4">
@@ -524,7 +528,7 @@ export function ManifoldDial() {
 
           {/* Layer selector */}
           <div className="bg-white rounded-lg shadow-sm p-4">
-            <label className="block text-sm font-medium text-gray-600 mb-2">
+            <label className="block font-mono text-xs uppercase tracking-wider text-gray-500 mb-2">
               Selected Layer: {selectedLayer}
             </label>
             <input
@@ -543,32 +547,36 @@ export function ManifoldDial() {
       </div>
 
       {/* Explanation */}
-      <div className="bg-blue-50 rounded-lg p-4 space-y-3">
-        <h3 className="font-semibold text-blue-900">What You're Seeing</h3>
-        <p className="text-blue-800 text-sm">
-          <strong>The key insight:</strong> Standard Hyper-Connections (HC) use
-          unconstrained matrices for residual mixing. When signals propagate through
-          many layers, the composite mapping explodes exponentially - gains can reach
-          10^16 or more at depth 64!
+      <div className="border-t border-gray-200 pt-6 space-y-3 max-w-3xl">
+        <p className="text-xs font-mono uppercase tracking-widest text-gray-500">
+          What you're seeing
         </p>
-        <p className="text-blue-800 text-sm">
-          <strong>The solution:</strong> mHC (Manifold-Constrained HC) projects these
-          matrices onto <em>doubly stochastic</em> matrices using Sinkhorn-Knopp.
-          Because doubly stochastic matrices are closed under multiplication, composite
-          gains stay bounded near 1.
+        <p className="text-gray-700 text-sm leading-relaxed">
+          <strong className="font-medium text-gray-900">The key insight.</strong> Standard
+          hyper-connections (HC) use unconstrained matrices for residual mixing. Propagated
+          through many layers, the composite mapping explodes exponentially; gains reach 10^16
+          or more at depth 64.
         </p>
-        <p className="text-blue-800 text-sm">
-          <strong>Eigenvalue decay:</strong> The second chart shows how |λ₂| decays with depth.
-          For doubly stochastic matrices, |λ₂| &lt; 1, so products converge toward uniformity.
+        <p className="text-gray-700 text-sm leading-relaxed">
+          <strong className="font-medium text-gray-900">The solution.</strong> mHC projects
+          each matrix onto a <em>doubly stochastic</em> matrix with Sinkhorn-Knopp. Because
+          doubly stochastic matrices are closed under multiplication, composite gains stay
+          bounded near 1.
         </p>
-        <p className="text-blue-800 text-sm">
-          <strong>Distance from uniform:</strong> The third chart directly answers "do we end up
-          with just the average?" - it shows the Frobenius distance from the 1/n matrix. For mHC,
-          this decreases with depth, showing gradual convergence to uniform averaging.
+        <p className="text-gray-700 text-sm leading-relaxed">
+          <strong className="font-medium text-gray-900">Eigenvalue decay.</strong> The second
+          chart shows how |λ₂| decays with depth. For doubly stochastic matrices |λ₂| &lt; 1, so
+          products converge toward uniformity.
         </p>
-        <p className="text-blue-800 text-sm">
-          <strong>Try it:</strong> Drag the "Sinkhorn Iterations" slider from 0 to 20
-          and watch the mHC line transform from explosive behavior to stable behavior!
+        <p className="text-gray-700 text-sm leading-relaxed">
+          <strong className="font-medium text-gray-900">Distance from uniform.</strong> The third
+          chart answers "do we just end up with the average?" It plots the Frobenius distance from
+          the 1/n matrix; for mHC it decreases with depth.
+        </p>
+        <p className="text-gray-700 text-sm leading-relaxed">
+          <strong className="font-medium text-gray-900">Try it.</strong> Drag the Sinkhorn
+          iterations slider from 0 to 20 and watch the mHC line fall off the HC curve into
+          stability.
         </p>
       </div>
 

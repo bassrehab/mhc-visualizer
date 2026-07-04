@@ -1,31 +1,92 @@
 @import "tailwindcss";
 
-/* Custom styles for mHC Visualizer */
+/*
+ * Quiet Authority theme for the Manifold Dial.
+ * Re-skins the Tailwind gray + blue scales to the subhadipmitra.com palette
+ * (warm paper, Blueprint accent, Newsreader / Hanken Grotesk / DM Mono),
+ * so the standard utility classes across every component pick it up centrally.
+ */
+@theme {
+  --font-sans: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-mono: 'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Neutrals -> warm paper scale */
+  --color-gray-50:  #f5f1e8;
+  --color-gray-100: #ebe6db;
+  --color-gray-200: #ddd9ce;
+  --color-gray-300: #c5c0b4;
+  --color-gray-400: #8b867d;
+  --color-gray-500: #6b6b6b;
+  --color-gray-600: #56524b;
+  --color-gray-700: #3d3d3d;
+  --color-gray-800: #2a2a2a;
+  --color-gray-900: #1a1a1a;
+
+  /* Accent -> Blueprint navy scale */
+  --color-blue-50:  #eef1fa;
+  --color-blue-100: #dde4f4;
+  --color-blue-200: #c3d0ec;
+  --color-blue-400: #4a6cc0;
+  --color-blue-500: #2f4fa0;
+  --color-blue-600: #1b3a8f;
+  --color-blue-700: #16306f;
+  --color-blue-800: #16306f;
+  --color-blue-900: #10204d;
+}
+
 :root {
-  --color-baseline: #10b981;
-  --color-hc: #ef4444;
-  --color-mhc: #3b82f6;
+  /* card surface (used wherever the app uses bg-white) */
+  --surface: #fdfbf7;
+  /* series colors, kept in sync with COLORS in lib/types.ts */
+  --color-baseline: #047857;
+  --color-hc: #c0392b;
+  --color-mhc: #1b3a8f;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #f9fafb;
+  font-family: var(--font-sans);
+  background-color: var(--color-gray-50);
+  color: #1a1a1a;
   margin: 0;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* Editorial hero heading (serif); panel titles use mono eyebrows via utilities */
+h1 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Card surfaces (the app uses bg-white for panels) */
+.bg-white { background-color: var(--surface); }
+.from-white { --tw-gradient-from: var(--surface); }
+
+/* ---- Editorial register: flatten dashboard chrome to Quiet Authority ---- */
+/* Hairline panels instead of drop-shadow floating cards */
+.shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl { box-shadow: none; }
+.bg-white { border: 1px solid var(--color-gray-200); }
+
+/* Near-square corners */
+.rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl { border-radius: 2px; }
+
+/* Mono for keyboard hints and small data */
+kbd { font-family: var(--font-mono); border-radius: 2px; }
 
 /* Smooth transitions for interactive elements */
 .transition-smooth {
   transition: all 0.2s ease-in-out;
 }
 
-/* Custom slider styling */
+/* Slider styling in the Blueprint accent */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   height: 8px;
   border-radius: 4px;
-  background: #e5e7eb;
+  background: var(--color-gray-200);
   width: 100%;
 }
 
@@ -35,60 +96,43 @@ input[type="range"]::-webkit-slider-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: var(--color-blue-600);
   cursor: pointer;
   transition: background 0.2s;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  background: #2563eb;
+  background: var(--color-blue-700);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-blue-600);
+  cursor: pointer;
 }
 
 /* Mobile-friendly slider - larger touch targets */
 @media (max-width: 640px) {
-  input[type="range"] {
-    height: 10px;
-  }
-
-  input[type="range"]::-webkit-slider-thumb {
-    width: 28px;
-    height: 28px;
-  }
-
-  input[type="range"]::-moz-range-thumb {
-    width: 28px;
-    height: 28px;
-  }
+  input[type="range"] { height: 10px; }
+  input[type="range"]::-webkit-slider-thumb { width: 28px; height: 28px; }
+  input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; }
 }
 
 /* Mobile responsive adjustments */
 @media (max-width: 640px) {
-  /* Smaller padding on mobile */
-  .max-w-6xl {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  /* Ensure charts don't overflow */
-  .recharts-responsive-container {
-    min-height: 200px !important;
-  }
+  .max-w-6xl { padding-left: 12px; padding-right: 12px; }
+  .recharts-responsive-container { min-height: 200px !important; }
 }
 
-/* Reduce chart heights on mobile */
 @media (max-width: 768px) {
-  .recharts-wrapper {
-    max-height: 220px;
-  }
+  .recharts-wrapper { max-height: 220px; }
 }
 
 /* Print-friendly styles */
 @media print {
-  body {
-    background-color: white;
-  }
-
-  .no-print {
-    display: none;
-  }
+  body { background-color: white; }
+  .no-print { display: none; }
 }

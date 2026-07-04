@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Shuffle, RotateCcw, Play, Pause, ChevronDown, ChevronUp, Settings } from 'lucide-react';
+import { Shuffle, RotateCcw, Play, Pause, ChevronDown, ChevronUp } from 'lucide-react';
 import type { SimulationConfig } from '../lib/types';
 
 type PlaybackSpeed = 'slow' | 'normal' | 'fast';
@@ -125,8 +125,7 @@ export function Controls({
     <div className="bg-white rounded-lg shadow-sm p-4 space-y-4">
       {/* Header with collapse toggle for mobile */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-          <Settings size={18} className="text-gray-500" />
+        <h3 className="font-mono text-xs uppercase tracking-widest text-gray-500">
           Controls
         </h3>
         {isMobile && (
@@ -151,7 +150,7 @@ export function Controls({
 
       {/* Presets - always visible */}
       <div data-tour="presets">
-        <label className="block text-sm font-medium text-gray-600 mb-1">
+        <label className="block font-mono text-xs uppercase tracking-wider text-gray-500 mb-1.5">
           Presets
         </label>
         <div className="flex flex-wrap gap-2">
@@ -177,7 +176,7 @@ export function Controls({
 
       {/* Sinkhorn Iterations (The Manifold Dial) */}
       <div data-tour="sinkhorn-slider">
-        <label className="block text-sm font-medium text-gray-600 mb-1">
+        <label className="block font-mono text-xs uppercase tracking-wider text-gray-500 mb-1.5">
           <span className="text-blue-600 font-semibold">Sinkhorn Iterations</span>
           <span className="text-gray-500 ml-1">(The Manifold Dial)</span>
         </label>
@@ -240,7 +239,7 @@ export function Controls({
         <>
           {/* Network Depth */}
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
+            <label className="block font-mono text-xs uppercase tracking-wider text-gray-500 mb-1.5">
               Network Depth
             </label>
             <div className="flex items-center gap-4">
@@ -263,7 +262,7 @@ export function Controls({
 
           {/* Number of Streams */}
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
+            <label className="block font-mono text-xs uppercase tracking-wider text-gray-500 mb-1.5">
               Number of Streams
             </label>
             <select
@@ -279,7 +278,7 @@ export function Controls({
 
           {/* Random Seed */}
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
+            <label className="block font-mono text-xs uppercase tracking-wider text-gray-500 mb-1.5">
               Random Seed
             </label>
             <input

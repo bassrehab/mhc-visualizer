@@ -43,7 +43,7 @@ export function ChartTabs({
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+            className={`px-4 py-2 font-mono text-xs uppercase tracking-wider transition-colors relative ${
               // Hide "All" tab on mobile
               tab.id === 'all' ? 'hidden md:block' : ''
             } ${

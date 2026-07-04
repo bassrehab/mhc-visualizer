@@ -47,10 +47,12 @@ export interface ComparisonResult {
 
 export type Method = 'baseline' | 'hc' | 'mhc';
 
+// Quiet Authority series palette (mirrors --color-* in index.css):
+// baseline = deep green, HC = red (exploding), mHC = Blueprint navy (bounded).
 export const COLORS: Record<Method, string> = {
-  baseline: '#10b981',
-  hc: '#ef4444',
-  mhc: '#3b82f6',
+  baseline: '#047857',
+  hc: '#c0392b',
+  mhc: '#1b3a8f',
 };
 
 export const LABELS: Record<Method, string> = {

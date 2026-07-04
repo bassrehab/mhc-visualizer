@@ -65,17 +65,23 @@ function SummaryCard({
 }) {
   return (
     <div
-      className="bg-white rounded-lg shadow-sm p-3 flex items-center justify-between"
-      style={{ borderTop: `3px solid ${COLORS[method]}` }}
+      className="bg-white p-4"
+      style={{ borderTop: `2px solid ${COLORS[method]}` }}
     >
-      <span className="font-medium text-sm" style={{ color: COLORS[method] }}>
+      <div
+        className="font-mono text-xs uppercase tracking-wider leading-tight"
+        style={{ color: COLORS[method] }}
+      >
         {LABELS[method]}
-      </span>
-      <div className="flex items-center gap-3">
-        <span className="font-mono text-sm">
+      </div>
+      <div className="mt-3 flex items-baseline justify-between gap-2">
+        <span className="font-serif text-2xl tabular-nums leading-none text-gray-900">
           {forwardGain >= 1000 ? forwardGain.toExponential(1) : forwardGain.toFixed(2)}
         </span>
         <StabilityIndicator gain={forwardGain} />
+      </div>
+      <div className="mt-1 font-mono text-[0.6rem] uppercase tracking-wider text-gray-400">
+        Forward gain
       </div>
     </div>
   );
@@ -105,7 +111,7 @@ function MethodCard({
       style={{ borderTop: `3px solid ${COLORS[method]}` }}
     >
       <h4
-        className="font-semibold mb-3"
+        className="font-mono text-xs uppercase tracking-wider mb-3"
         style={{ color: COLORS[method] }}
       >
         {LABELS[method]}
@@ -191,9 +197,9 @@ export function MetricsPanel({ results, selectedLayer }: MetricsPanelProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800">
+        <h3 className="font-mono text-xs uppercase tracking-widest text-gray-500">
           Metrics at Layer {layer}
-          {isFinal && <span className="text-gray-500 ml-2">(Final)</span>}
+          {isFinal && <span className="text-gray-400 ml-2">(Final)</span>}
         </h3>
         <button
           onClick={() => setIsExpanded(!isExpanded)}
@@ -239,7 +245,7 @@ export function MetricsPanel({ results, selectedLayer }: MetricsPanelProps) {
         </div>
       ) : (
         // Collapsed summary view - Forward Gain + Stability only
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {methods.map((method) => {
             const composite = results[method].composite[layer];
             return (

@@ -101,15 +101,15 @@ export function GainPlot({
           {/* Stability threshold at y=1 */}
           <ReferenceLine
             y={1}
-            stroke="#9ca3af"
+            stroke="#8b867d"
             strokeDasharray="5 5"
-            label={{ value: 'Stable (gain=1)', position: 'right', fill: '#6b7280', fontSize: 10 }}
+            label={{ value: 'Stable (gain=1)', position: 'right', fill: '#56524b', fontSize: 10 }}
           />
 
           {selectedLayer !== undefined && (
             <ReferenceLine
               x={selectedLayer}
-              stroke="#9ca3af"
+              stroke="#8b867d"
               strokeDasharray="3 3"
             />
           )}
