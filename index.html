@@ -10,6 +10,22 @@
     <title>Manifold Dial - mHC Visualizer</title>
     <meta name="description" content="Interactive visualization of Manifold-Constrained Hyper-Connections (mHC) stability in deep neural networks" />
     <meta name="author" content="Subhadip Mitra" />
+    <!-- Theme: ?theme=dark from an embedding site, plus live sync via postMessage -->
+    <script>
+      (function () {
+        function apply(t) {
+          document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+        }
+        var q = new URLSearchParams(location.search).get('theme');
+        var stored = null;
+        try { stored = localStorage.getItem('theme'); } catch (e) {}
+        // Embedder's ?theme wins; otherwise a standalone visitor's saved choice; else light.
+        apply(q || stored || 'light');
+        window.addEventListener('message', function (e) {
+          if (e && e.data && e.data.type === 'mhc-theme') apply(e.data.theme);
+        });
+      })();
+    </script>
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TW7YQ5XPC6"></script>
     <script>
@@ -18,10 +34,23 @@
       gtag('js', new Date());
       gtag('config', 'G-TW7YQ5XPC6');
     </script>
-    <script type="module" crossorigin src="/mhc-visualizer/assets/index-Br4p9w2e.js"></script>
-    <link rel="stylesheet" crossorigin href="/mhc-visualizer/assets/index-wTKl0BAS.css">
+    <script type="module" crossorigin src="/mhc-visualizer/assets/index-BQiyn4MN.js"></script>
+    <link rel="stylesheet" crossorigin href="/mhc-visualizer/assets/index-DblLSarp.css">
   </head>
   <body>
     <div id="root"></div>
+    <!-- Report content height so an embedding site can auto-size the iframe -->
+    <script>
+      (function () {
+        function post() {
+          try { parent.postMessage({ type: 'mhc-height', height: document.documentElement.scrollHeight }, '*'); } catch (e) {}
+        }
+        window.addEventListener('load', post);
+        setTimeout(post, 1200);
+        if (window.ResizeObserver) {
+          try { new ResizeObserver(post).observe(document.documentElement); } catch (e) {}
+        }
+      })();
+    </script>
   </body>
 </html>
