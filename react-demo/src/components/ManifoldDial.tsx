@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Link, Check, Keyboard, Info, Github } from 'lucide-react';
+import { Link, Check, Keyboard, Info, Github, Sun, Moon } from 'lucide-react';
 import { Controls } from './Controls';
 import { InsightBanner } from './InsightBanner';
 import { StickySinkhornControl } from './StickySinkhornControl';
@@ -16,6 +16,7 @@ import { MetricsPanel } from './MetricsPanel';
 import { TourOverlay, TourButton } from './TourOverlay';
 import { runComparison, getSampleMatrix } from '../lib/simulation';
 import { configToUrl, urlToConfig, urlToTab, copyToClipboard } from '../lib/utils';
+import { useThemeSignal } from '../lib/theme';
 import type { SimulationConfig, ComparisonResult } from '../lib/types';
 
 const DEFAULT_CONFIG: SimulationConfig = {
@@ -28,6 +29,18 @@ const DEFAULT_CONFIG: SimulationConfig = {
 const TOUR_COMPLETED_KEY = 'mhc-tour-completed';
 
 export function ManifoldDial() {
+  // Re-render (so theme-reactive series colors update) when the theme flips.
+  const theme = useThemeSignal();
+  // Hide the built-in switcher when an embedder controls the theme (?theme=…).
+  const [embedded] = useState(() =>
+    typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('theme')
+  );
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch { /* ignore */ }
+  };
+
   // Initialize from URL params if present
   const [config, setConfig] = useState<SimulationConfig>(() =>
     urlToConfig(DEFAULT_CONFIG)
@@ -378,6 +391,17 @@ export function ManifoldDial() {
             <span className="hidden sm:inline">About</span>
           </button>
           <TourButton onClick={handleStartTour} />
+          {!embedded && (
+            <button
+              onClick={toggleTheme}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 transition-colors"
+              title="Toggle light / dark"
+              aria-label="Toggle light or dark theme"
+            >
+              {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+              <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+            </button>
+          )}
         </div>
       </div>
 

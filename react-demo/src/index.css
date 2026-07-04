@@ -44,6 +44,66 @@
   --color-mhc: #1b3a8f;
 }
 
+/* ---- Dark theme: applied when the root carries data-theme="dark" ---- */
+[data-theme="dark"] {
+  /* neutrals inverted to a dark scale: text-gray-* go light, bg-gray-50/100/200 go dark */
+  --color-gray-50:  #0f0f0f;
+  --color-gray-100: #1a1a1a;
+  --color-gray-200: #2a2a2a;
+  --color-gray-300: #3a3a3a;
+  --color-gray-400: #7c7c7c;
+  --color-gray-500: #9a9a9a;
+  --color-gray-600: #b6b6b6;
+  --color-gray-700: #cccccc;
+  --color-gray-800: #dedede;
+  --color-gray-900: #ededed;
+
+  --color-blue-50:  #182036;
+  --color-blue-100: #1e2a44;
+  --color-blue-200: #26355a;
+  --color-blue-400: #7f9ce6;
+  --color-blue-500: #4a6cc0;
+  --color-blue-600: #3a5bb5;   /* button background; white text stays readable */
+  --color-blue-700: #4a6cc0;
+  --color-blue-800: #8aa5f3;
+  --color-blue-900: #a9bef7;
+
+  --surface: #1a1a1a;
+  --color-baseline: #34d399;
+  --color-hc: #e0796a;
+  --color-mhc: #6b8cef;
+
+  background-color: #0f0f0f;
+  color: #ededed;
+}
+
+[data-theme="dark"] body { background-color: #0f0f0f; color: #ededed; }
+
+/* Keep intentionally-dark surfaces dark (they would otherwise invert to light) */
+[data-theme="dark"] .bg-gray-700 { background-color: #2c2c2c; }
+[data-theme="dark"] .bg-gray-800 { background-color: #242424; }
+[data-theme="dark"] .bg-gray-900 { background-color: #1c1c1c; }
+[data-theme="dark"] .hover\:bg-gray-900:hover { background-color: #333333; }
+[data-theme="dark"] .hover\:bg-gray-200:hover { background-color: #2f2f2f; }
+
+/* Blue TEXT (links) light; blue BG (buttons) stays navy via --color-blue-600 */
+[data-theme="dark"] .text-blue-600,
+[data-theme="dark"] .text-blue-800,
+[data-theme="dark"] .text-blue-900,
+[data-theme="dark"] .text-blue-400 { color: #8aa5f3; }
+
+/* Semantic insight-banner tints to dark, readable variants */
+[data-theme="dark"] .bg-red-50   { background-color: #2a1512; }
+[data-theme="dark"] .bg-amber-50 { background-color: #2a2110; }
+[data-theme="dark"] .bg-green-50 { background-color: #12251c; }
+[data-theme="dark"] .border-red-200   { border-color: #5a2a24; }
+[data-theme="dark"] .border-amber-200 { border-color: #5a4620; }
+[data-theme="dark"] .border-green-200 { border-color: #1f4a38; }
+[data-theme="dark"] .border-blue-200  { border-color: #26355a; }
+[data-theme="dark"] .text-red-800   { color: #f0a89c; }
+[data-theme="dark"] .text-amber-800 { color: #e8c07a; }
+[data-theme="dark"] .text-green-800 { color: #7fdcaa; }
+
 body {
   font-family: var(--font-sans);
   background-color: var(--color-gray-50);

@@ -58,3 +58,6 @@ logs/
 *.tmp
 *.temp
 .cache/
+
+# wrangler cache
+.wrangler/
